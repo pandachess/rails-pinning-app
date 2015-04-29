@@ -23,6 +23,20 @@ class PinsController < ApplicationController
     end
   end
 
+  def edit
+    @pin = Pin.find(params[:id])
+  end
+
+  def update
+    @pin = Pin.find(params[:id])    
+    if @pin.update_attributes(pin_params)
+      redirect_to pin_path(@pin)
+    else
+      @errors = @pin.errors
+      render :edit
+    end
+  end
+
   def show_by_name
   	@pin = Pin.find_by_slug(params[:slug])
   	render :show
