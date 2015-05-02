@@ -37,7 +37,7 @@ RSpec.describe PinsController do
       url: "http://railswizard.org", 
       slug: "rails-wizard", 
       text: "A fun and helpful Rails Resource",
-      resource_type: "rails"}    
+      category_id: 2}    
     end
     
     after(:each) do
@@ -83,12 +83,12 @@ RSpec.describe PinsController do
 
   describe "GET edit" do
     before(:each) do
-      @pin_hash = { 
+      @pin = Pin.create( 
       title: "Rails Wizard", 
       url: "http://railswizard.org", 
       slug: "rails-wizard", 
       text: "A fun and helpful Rails Resource",
-      resource_type: "rails"}    
+      category_id: 2)   
     end
 
     after(:each) do
@@ -104,24 +104,24 @@ RSpec.describe PinsController do
     end
     
     it 'renders the edit view' do
-      get :edit, id: @pin     
+      get :edit, id: @pin   
       expect(response).to render_template(:edit)
     end
     
     it 'assigns an instance variable to a Pin with the appropriate id' do
       get :edit, id: @pin
-      expect(assigns(:pin)).id.to eq(Pin.id)
+      expect(assigns(:pin)).to eq(@pin)
     end
   end
 
   describe "PUT update/:id" do
     before(:each) do
-      @pin_hash = { 
+      @pin = Pin.create( 
       title: "Rails Wizard", 
       url: "http://railswizard.org", 
       slug: "rails-wizard", 
       text: "A fun and helpful Rails Resource",
-      resource_type: "rails"}    
+      category_id: 2)  
     end
     
     after(:each) do
@@ -132,35 +132,33 @@ RSpec.describe PinsController do
     end
     
     it 'responds with a redirect' do
-      put :update, id: @pin
+      put :update, id: @pin, pin: {title: "Rails Magician"}
       expect(response.redirect?).to be(true)
     end
     
     it 'updates a pin' do
-      put :update, id: @pin 
+      put :update, id: @pin, pin: {title: "Rails Magician"}
       expect(Pin.find_by_slug("rails-wizard").present?).to be(true)
     end
     
     it 'redirects to the show view' do
-      put :update, id: @pin
+      put :update, id: @pin, pin: {title: "Rails Magician"}
       expect(response).to redirect_to(pin_url(assigns(:pin)))
     end
     
     it 'redisplays new form on error' do
       # The title is required in the Pin model, so we'll
-      # delete the title from the @pin_hash in order
+      # pass in a nil value in order
       # to test what happens with invalid parameters
-      @pin_hash.delete(:title)
-      put :update, id: @pin
-      expect(response).to render_template(:show)
+      put :update, id: @pin, pin: {title: ""}
+      expect(response).to render_template(:edit)
     end
     
     it 'assigns the @errors instance variable on error' do
       # The title is required in the Pin model, so we'll
-      # delete the title from the @pin_hash in order
+      # pass in a nil value in order 
       # to test what happens with invalid parameters
-      @pin_hash.delete(:title)
-      put :update, id: @pin
+      put :update, id: @pin, pin: {title: ""}
       expect(assigns[:errors].present?).to be(true)
     end       
   end
